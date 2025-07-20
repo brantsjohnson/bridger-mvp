@@ -1,0 +1,463 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Y2K/MySpace Vibrant Design System - All colors MUST be HSL */
+
+@layer base {
+  :root {
+    /* Y2K MySpace Color Palette */
+    --background: 240 100% 97%;
+    --foreground: 270 100% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 270 100% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 100% 10%;
+
+    --primary: 280 100% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 190 100% 70%;
+    --secondary-foreground: 270 100% 10%;
+
+    --muted: 240 20% 90%;
+    --muted-foreground: 270 50% 40%;
+
+    --accent: 320 100% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 100% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 270 50% 80%;
+    --input: 240 20% 95%;
+    --ring: 280 100% 60%;
+
+    /* Y2K MySpace Gradients */
+    --gradient-y2k-primary: linear-gradient(45deg, hsl(280 100% 60%), hsl(320 100% 65%), hsl(190 100% 70%));
+    --gradient-y2k-secondary: linear-gradient(90deg, hsl(320 100% 65%), hsl(280 100% 60%), hsl(240 100% 70%));
+    --gradient-sunset: linear-gradient(135deg, hsl(35 100% 65%), hsl(15 100% 70%), hsl(320 100% 65%));
+    --gradient-ocean: linear-gradient(180deg, hsl(190 100% 70%), hsl(240 100% 75%), hsl(280 100% 80%));
+    --gradient-neon: linear-gradient(90deg, hsl(190 100% 70%), hsl(280 100% 60%), hsl(320 100% 65%));
+    --gradient-glass: linear-gradient(135deg, hsl(280 100% 60% / 0.1), hsl(320 100% 65% / 0.05));
+    --gradient-glow: radial-gradient(circle, hsl(280 100% 60% / 0.3), transparent 70%);
+
+    /* Animated Gradients */
+    --gradient-animated-1: linear-gradient(270deg, hsl(280 100% 60%), hsl(320 100% 65%), hsl(190 100% 70%), hsl(35 100% 65%));
+    --gradient-animated-2: linear-gradient(45deg, hsl(320 100% 65%), hsl(240 100% 70%), hsl(190 100% 75%), hsl(280 100% 60%));
+
+    /* Retro Shadows */
+    --shadow-retro: 3px 3px 0px hsl(280 100% 40%);
+    --shadow-glass: 0 8px 32px hsl(280 100% 60% / 0.2);
+    --shadow-neon: 0 0 20px hsl(280 100% 60% / 0.4), 0 0 40px hsl(320 100% 65% / 0.3);
+    --shadow-popup: 5px 5px 0px hsl(280 50% 70%), 8px 8px 0px hsl(280 30% 60%);
+
+    /* Animations */
+    --transition-retro: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-smooth: all 0.2s ease-out;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: 'MS Sans Serif', sans-serif;
+    background: url('/lovable-uploads/06e677a7-a5ba-45f4-b4be-9d687a72935d.png') center/cover no-repeat;
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  /* Classic Desktop Icon */
+  .desktop-icon {
+    @apply flex flex-col items-center p-2 cursor-pointer relative;
+    background: transparent;
+    transition: var(--transition-smooth);
+  }
+
+  .desktop-icon:hover {
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .desktop-icon:active {
+    transform: translateY(1px);
+  }
+
+
+  /* Classic OS Button */
+  .y2k-button {
+    @apply font-bold uppercase tracking-wide cursor-pointer;
+    padding: 20px 40px;
+    font-size: 24px;
+    width: 85%;
+    max-width: 320px;
+    margin: 0 auto;
+    display: block;
+    background: linear-gradient(145deg, #c0c0c0, #808080);
+    border: 4px outset #c0c0c0;
+    color: #000;
+    font-family: 'MS Sans Serif', sans-serif;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    position: relative;
+    text-shadow: 1px 1px 0px rgba(255,255,255,0.8);
+    box-shadow: 
+      inset 2px 2px 4px rgba(255,255,255,0.9),
+      inset -2px -2px 4px rgba(0,0,0,0.4),
+      4px 4px 8px rgba(0,0,0,0.6);
+    transform: perspective(1000px) rotateX(0deg) scale(1);
+    overflow: hidden;
+  }
+
+  .y2k-button::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(145deg, #e0e0e0, #a0a0a0);
+    border-radius: 10px;
+    z-index: -1;
+    border: 2px solid #606060;
+    transition: all 0.3s ease;
+  }
+
+  .y2k-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+    transform: skewX(-25deg);
+    transition: left 0.6s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .y2k-button:hover {
+    background: linear-gradient(145deg, #d0d0d0, #909090);
+    transform: perspective(1000px) rotateX(10deg) scale(1.1);
+    box-shadow: 
+      inset 2px 2px 4px rgba(255,255,255,1),
+      inset -2px -2px 4px rgba(0,0,0,0.4),
+      0 15px 30px rgba(255,20,147,0.4),
+      0 0 20px rgba(255,20,147,0.3);
+    border-color: #ff1493;
+    color: #ff1493;
+    text-shadow: 0 0 10px rgba(255,20,147,0.5);
+  }
+
+  .y2k-button:hover::before {
+    background: linear-gradient(145deg, #ff1493, #8b008b);
+    border-color: #ff1493;
+    box-shadow: 0 0 30px rgba(255,20,147,0.6);
+  }
+
+  .y2k-button:hover::after {
+    left: 100%;
+  }
+
+  .y2k-button:active {
+    border: 4px inset #c0c0c0;
+    background: linear-gradient(145deg, #a0a0a0, #d0d0d0);
+    transform: perspective(1000px) rotateX(5deg) scale(1.05);
+    box-shadow: 
+      inset -2px -2px 4px rgba(255,255,255,0.8),
+      inset 2px 2px 4px rgba(0,0,0,0.5),
+      0 10px 20px rgba(255,20,147,0.3);
+  }
+
+
+  /* Classic OS Window */
+  .popup-window {
+    @apply relative p-0;
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+  }
+
+  .window-titlebar {
+    @apply flex items-center justify-between px-2 py-1;
+    background: linear-gradient(90deg, #0080ff, #0060c0);
+    color: white;
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+  }
+
+  .window-content {
+    @apply p-3;
+    background: #c0c0c0;
+  }
+
+  /* Classic OS Widget */
+  .friend-widget {
+    @apply cursor-pointer relative;
+    background: #c0c0c0;
+    border: 2px outset #c0c0c0;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    transition: var(--transition-smooth);
+  }
+
+  .friend-widget:hover {
+    background: #d0d0d0;
+  }
+
+  .friend-widget:active {
+    border: 2px inset #c0c0c0;
+    background: #b0b0b0;
+  }
+
+  /* Classic OS Font */
+  .pixel-font {
+    font-family: 'MS Sans Serif', 'Tahoma', sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+    color: #000;
+  }
+
+  .desktop-label {
+    font-family: 'MS Sans Serif', sans-serif;
+    font-size: 11px;
+    color: white;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+    text-align: center;
+  }
+
+  /* Neon Text Effect */
+  .neon-text {
+    color: hsl(var(--primary));
+    text-shadow: 
+      0 0 5px hsl(var(--primary) / 0.5),
+      0 0 10px hsl(var(--primary) / 0.3),
+      0 0 15px hsl(var(--primary) / 0.2);
+  }
+
+  /* Pixelated Images */
+  .pixelated {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  /* Y2K/MySpace Profile Sections */
+  .profile-section {
+    @apply relative overflow-hidden;
+    background: hsl(var(--card));
+    border: 3px solid hsl(var(--primary));
+    border-radius: 8px;
+    box-shadow: var(--shadow-neon);
+  }
+
+  .profile-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-animated-1);
+    background-size: 400% 400%;
+    animation: gradient-shift 8s ease infinite;
+    opacity: 0.1;
+    z-index: 0;
+  }
+
+  .profile-section-header {
+    @apply relative z-10 px-4 py-3;
+    background: var(--gradient-y2k-primary);
+    color: hsl(var(--primary-foreground));
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: var(--shadow-retro);
+    border-bottom: 2px solid hsl(var(--accent));
+  }
+
+  .profile-section-content {
+    @apply relative z-10 p-4;
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--muted)));
+  }
+
+  .profile-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-animated-2);
+    background-size: 400% 400%;
+    animation: gradient-shift 12s ease infinite reverse;
+    opacity: 0.3;
+    z-index: -1;
+  }
+
+  .profile-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-glow);
+    animation: pulse-glow 6s ease-in-out infinite;
+  }
+
+  /* MySpace-style sparkle animation */
+  .sparkle-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 20% 80%, hsl(320 100% 65% / 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, hsl(190 100% 70% / 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, hsl(280 100% 60% / 0.2) 0%, transparent 50%);
+    animation: sparkle 10s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Laser Border Animation - Just glow the existing gray border */
+  .laser-border {
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(0, 255, 0, 0.4);
+    animation: border-glow 2s linear infinite;
+  }
+
+  @keyframes border-glow {
+    0% {
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.4);
+    }
+    25% {
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 10px rgba(0, 255, 0, 0.8), 0 0 20px rgba(0, 255, 0, 0.4);
+    }
+    75% {
+      box-shadow: 0 0 10px rgba(255, 0, 255, 0.8), 0 0 20px rgba(255, 0, 255, 0.4);
+    }
+    100% {
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.4);
+    }
+  }
+
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.1);
+    }
+  }
+
+  @keyframes sparkle {
+    0% {
+      transform: rotate(0deg) scale(1);
+      opacity: 0.3;
+    }
+    50% {
+      transform: rotate(180deg) scale(1.2);
+      opacity: 0.6;
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+      opacity: 0.3;
+    }
+  }
+}

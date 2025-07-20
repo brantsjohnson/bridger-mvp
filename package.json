@@ -1,0 +1,37 @@
+{
+  "name": "bridger-mvp",
+  "version": "1.0.0",
+  "description": "Bridger MVP - Monorepo containing core app, auth app, and quiz app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:main\" \"npm run dev:quiz\" \"npm run dev:core\" \"npm run dev:auth\"",
+    "dev:main": "cd apps && npm run dev",
+    "dev:quiz": "cd apps/quiz-app && npm run dev",
+    "dev:core": "cd apps/core-app && npm run dev",
+    "dev:auth": "cd apps/auth-app && npm run dev",
+    "build": "npm run build:quiz && npm run build:core && npm run build:auth",
+    "build:quiz": "cd apps/quiz-app && npm run build",
+    "build:core": "cd apps/core-app && npm run build",
+    "build:auth": "cd apps/auth-app && npm run build",
+    "install:all": "npm install && cd apps/quiz-app && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "bridger",
+    "mvp",
+    "monorepo",
+    "react",
+    "vite"
+  ],
+  "author": "Brant Johnson",
+  "license": "MIT",
+  "dependencies": {
+    "sharp": "^0.34.3"
+  }
+}

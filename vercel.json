@@ -1,0 +1,48 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/auth",
+      "dest": "/apps/dist/index.html"
+    },
+    {
+      "src": "/core",
+      "dest": "/apps/dist/index.html"
+    },
+    {
+      "src": "/quiz",
+      "dest": "/apps/dist/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/dist/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/auth",
+      "destination": "/apps/dist/index.html"
+    },
+    {
+      "source": "/core",
+      "destination": "/apps/dist/index.html"
+    },
+    {
+      "source": "/quiz",
+      "destination": "/apps/dist/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/apps/dist/index.html"
+    }
+  ]
+} 
