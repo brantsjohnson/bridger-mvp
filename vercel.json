@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "npm install && cd apps && npm install && npm run build",
+  "buildCommand": "./build.sh",
   "outputDirectory": "apps/dist",
-  "installCommand": "npm install && cd apps && npm install",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/auth",
