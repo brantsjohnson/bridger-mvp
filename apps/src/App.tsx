@@ -8,8 +8,42 @@ const App = () => {
     console.log('Active app changed to:', activeApp);
   }, [activeApp]);
 
-  // Handle URL-based routing
+  // Listen for messages from iframes to handle navigation
   useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'NAVIGATE_TO_CORE') {
+        console.log('Setting active app to core');
+        setActiveApp('core');
+        // Update URL to reflect the navigation
+        window.history.pushState({}, '', '/core');
+      }
+      
+      if (event.data && event.data.type === 'NAVIGATE_TO_CORE_WITH_USER') {
+        console.log('Setting active app to core with user data');
+        setActiveApp('core');
+        // Update URL to reflect the navigation
+        window.history.pushState({}, '', '/core');
+        
+        // Store user data for the core app to access
+        if (event.data.userData) {
+          localStorage.setItem('bridger_user_data', JSON.stringify(event.data.userData));
+        }
+      }
+      
+      if (event.data && event.data.type === 'NAVIGATE_TO_QUIZ') {
+        console.log('Setting active app to quiz');
+        setActiveApp('quiz');
+        // Update URL to reflect the navigation
+        window.history.pushState({}, '', '/quiz');
+      }
+      
+      if (event.data && event.data.type === 'UPDATE_URL') {
+        // Update URL when core app navigates
+        window.history.pushState({}, '', event.data.url);
+      }
+    };
+
+    // Handle URL-based routing
     const handlePopState = () => {
       const path = window.location.pathname;
       console.log('PopState - Current path:', path);
@@ -22,6 +56,9 @@ const App = () => {
       } else if (path.startsWith('/core')) {
         console.log('Setting active app to core (popstate)');
         setActiveApp('core');
+        // Pass the sub-route to the core app
+        const subRoute = path.replace('/core', '') || '/';
+        window.postMessage({ type: 'CORE_ROUTE', route: subRoute }, '*');
       } else {
         console.log('Setting active app to core (default)');
         setActiveApp('core');
@@ -40,6 +77,9 @@ const App = () => {
     } else if (path.startsWith('/core')) {
       console.log('Setting initial active app to core');
       setActiveApp('core');
+      // Pass the sub-route to the core app
+      const subRoute = path.replace('/core', '') || '/';
+      window.postMessage({ type: 'CORE_ROUTE', route: subRoute }, '*');
     } else {
       console.log('Setting initial active app to core (default)');
       setActiveApp('core');
@@ -49,8 +89,10 @@ const App = () => {
       }
     }
 
+    window.addEventListener('message', handleMessage);
     window.addEventListener('popstate', handlePopState);
     return () => {
+      window.removeEventListener('message', handleMessage);
       window.removeEventListener('popstate', handlePopState);
     };
   }, []);
@@ -80,6 +122,8 @@ const App = () => {
             console.log('Auth button clicked');
             setActiveApp('auth');
             window.history.pushState({}, '', '/auth');
+            // Clear user data when going to auth
+            localStorage.removeItem('bridger_user_data');
           }}
           style={{
             padding: '10px 20px',
@@ -135,138 +179,33 @@ const App = () => {
       </div>
 
       {/* App Content */}
-      <div style={{ flex: 1, height: 'calc(100vh - 60px)', padding: '20px' }}>
+      <div style={{ flex: 1, height: 'calc(100vh - 60px)' }}>
         {activeApp === 'auth' && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            height: '100%',
-            backgroundColor: '#f3f4f6',
-            borderRadius: '10px',
-            padding: '40px'
-          }}>
-            <h1 style={{ color: '#1f2937', marginBottom: '20px' }}>🔐 Auth App</h1>
-            <p style={{ color: '#6b7280', textAlign: 'center', maxWidth: '600px', marginBottom: '30px' }}>
-              Your beautiful Auth App is ready! To see it in action, you need to deploy it separately to Vercel.
-            </p>
-            <div style={{ marginTop: '20px' }}>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                View Auth App Locally
-              </button>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#10b981',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                Deploy to Vercel
-              </button>
-            </div>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '20px' }}>
-              <strong>Local Development:</strong> Run <code>npm run dev:auth</code> to see your auth app at localhost:8081
-            </p>
-          </div>
+          <iframe
+            src={process.env.NODE_ENV === 'production' ? '/auth-app' : 'http://localhost:8081'}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            title="Auth App"
+            allow="camera; microphone; geolocation"
+            allowFullScreen
+          />
         )}
         {activeApp === 'core' && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            height: '100%',
-            backgroundColor: '#f3f4f6',
-            borderRadius: '10px',
-            padding: '40px'
-          }}>
-            <h1 style={{ color: '#1f2937', marginBottom: '20px' }}>🏠 Core App</h1>
-            <p style={{ color: '#6b7280', textAlign: 'center', maxWidth: '600px', marginBottom: '30px' }}>
-              Your beautiful Core App is ready! To see it in action, you need to deploy it separately to Vercel.
-            </p>
-            <div style={{ marginTop: '20px' }}>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                View Core App Locally
-              </button>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#8b5cf6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                Deploy to Vercel
-              </button>
-            </div>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '20px' }}>
-              <strong>Local Development:</strong> Run <code>npm run dev:core</code> to see your core app at localhost:8080
-            </p>
-          </div>
+          <iframe
+            src={process.env.NODE_ENV === 'production' ? '/core-app' : 'http://localhost:8080'}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            title="Core App"
+            allow="camera; microphone; geolocation"
+            allowFullScreen
+          />
         )}
         {activeApp === 'quiz' && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            height: '100%',
-            backgroundColor: '#f3f4f6',
-            borderRadius: '10px',
-            padding: '40px'
-          }}>
-            <h1 style={{ color: '#1f2937', marginBottom: '20px' }}>🧠 Quiz App</h1>
-            <p style={{ color: '#6b7280', textAlign: 'center', maxWidth: '600px', marginBottom: '30px' }}>
-              Your beautiful Quiz App is ready! To see it in action, you need to deploy it separately to Vercel.
-            </p>
-            <div style={{ marginTop: '20px' }}>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                View Quiz App Locally
-              </button>
-              <button style={{
-                padding: '10px 20px',
-                backgroundColor: '#ef4444',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer',
-                margin: '0 10px'
-              }}>
-                Deploy to Vercel
-              </button>
-            </div>
-            <p style={{ color: '#6b7280', fontSize: '14px', marginTop: '20px' }}>
-              <strong>Local Development:</strong> Run <code>npm run dev:quiz</code> to see your quiz app at localhost:8084
-            </p>
-          </div>
+          <iframe
+            src={process.env.NODE_ENV === 'production' ? '/quiz-app' : 'http://localhost:8084'}
+            style={{ width: '100%', height: '100%', border: 'none' }}
+            title="Quiz App"
+            allow="camera; microphone; geolocation"
+            allowFullScreen
+          />
         )}
       </div>
     </div>
