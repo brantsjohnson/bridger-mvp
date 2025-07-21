@@ -135,4 +135,4 @@ MIT License - see LICENSE file for details.
 
 ## 📞 Support
 
-For support or questions, please open an issue on GitHub. # bridger-mvp
+For support or questions, please open an issue on GitHub.
