@@ -14,6 +14,7 @@
     "dev:core": "cd apps/core-app && npm run dev",
     "dev:auth": "cd apps/auth-app && npm run dev",
     "build": "npm install && cd apps && npm install && npm run build",
+    "build:all": "npm install && cd apps && npm install && cd auth-app && npm install && npm run build && cd ../core-app && npm install && npm run build && cd ../quiz-app && npm install && npm run build && cd .. && mkdir -p public/auth-app public/core-app public/quiz-app && cp -r auth-app/dist/* public/auth-app/ && cp -r core-app/dist/* public/core-app/ && cp -r quiz-app/dist/* public/quiz-app/ && npm run build",
     "build:main": "cd apps && npm run build",
     "build:quiz": "cd apps/quiz-app && npm run build",
     "build:core": "cd apps/core-app && npm run build",
