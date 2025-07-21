@@ -13,7 +13,7 @@
     "dev:quiz": "cd apps/quiz-app && npm run dev",
     "dev:core": "cd apps/core-app && npm run dev",
     "dev:auth": "cd apps/auth-app && npm run dev",
-    "build": "cd apps && npm run build",
+    "build": "cd apps && npm install && npm run build",
     "build:quiz": "cd apps/quiz-app && npm run build",
     "build:core": "cd apps/core-app && npm run build",
     "build:auth": "cd apps/auth-app && npm run build",
