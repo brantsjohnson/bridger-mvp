@@ -38,33 +38,15 @@ export const authUtils = {
     console.log('AuthUtils: Attempting sign up with email:', email, 'name:', name);
     console.log('AuthUtils: Password length:', password.length);
     
-    // For development: try to sign in directly (bypass signup if user exists)
-    try {
-      console.log('AuthUtils: Attempting direct sign in for development...');
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-      
-      if (!signInError && signInData.user) {
-        console.log('AuthUtils: Direct sign in successful!');
-        return {
-          user: signInData.user as User,
-          session: signInData.session
-        }
-      }
-    } catch (directSignInError) {
-      console.log('AuthUtils: Direct sign in failed, proceeding with signup...');
-    }
-    
-    // If direct sign in fails, proceed with normal signup
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
-        }
+        },
+        // For development: skip email confirmation
+        emailRedirectTo: 'http://localhost:3000/auth'
       }
     })
     

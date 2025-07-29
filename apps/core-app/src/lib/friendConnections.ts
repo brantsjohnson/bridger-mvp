@@ -201,230 +201,26 @@ export const parseConnectionCode = (url: string): { userId?: string; connectionC
 };
 
 /**
- * Copy text to clipboard with iframe-safe fallback
+ * Copy text to clipboard
  */
 export const copyToClipboard = async (text: string): Promise<boolean> => {
   try {
-    // Try modern clipboard API first
-    if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
-      console.log('✅ Modern clipboard API successful');
       return true;
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      return successful;
     }
   } catch (error) {
-    console.log('Modern clipboard API failed, trying fallback:', error);
-    
-    // Check if it's a permissions error
-    if (error instanceof Error && error.message.includes('permissions policy')) {
-      console.log('⚠️ Clipboard blocked by permissions policy - using fallback');
-    }
-  }
-
-  try {
-    // Fallback for iframes or older browsers
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-999999px';
-    textArea.style.top = '-999999px';
-    textArea.style.opacity = '0';
-    textArea.style.pointerEvents = 'none';
-    textArea.style.zIndex = '-9999';
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    
-    const successful = document.execCommand('copy');
-    document.body.removeChild(textArea);
-    
-    if (successful) {
-      console.log('✅ Fallback clipboard method successful');
-      return true;
-    }
-  } catch (error) {
-    console.log('Fallback clipboard method failed:', error);
-  }
-
-  // Final fallback - show the link in a more user-friendly way
-  try {
-    // Create a temporary input field that the user can copy from
-    const tempInput = document.createElement('input');
-    tempInput.value = text;
-    tempInput.style.position = 'fixed';
-    tempInput.style.top = '50%';
-    tempInput.style.left = '50%';
-    tempInput.style.transform = 'translate(-50%, -50%)';
-    tempInput.style.zIndex = '9999';
-    tempInput.style.padding = '10px';
-    tempInput.style.border = '2px solid #333';
-    tempInput.style.borderRadius = '5px';
-    tempInput.style.fontSize = '14px';
-    tempInput.style.backgroundColor = 'white';
-    tempInput.style.color = 'black';
-    tempInput.readOnly = true;
-    tempInput.style.width = '300px';
-    
-    // Add a close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = '×';
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '-10px';
-    closeButton.style.right = '-10px';
-    closeButton.style.width = '20px';
-    closeButton.style.height = '20px';
-    closeButton.style.border = 'none';
-    closeButton.style.borderRadius = '50%';
-    closeButton.style.backgroundColor = '#ff4444';
-    closeButton.style.color = 'white';
-    closeButton.style.cursor = 'pointer';
-    closeButton.style.fontSize = '12px';
-    closeButton.style.fontWeight = 'bold';
-    
-    // Add instructions
-    const instructions = document.createElement('div');
-    instructions.innerHTML = '<p style="margin: 0 0 10px 0; color: #333; font-size: 12px;">Click the link below and press Ctrl+C (or Cmd+C) to copy:</p>';
-    instructions.style.position = 'absolute';
-    instructions.style.top = '-30px';
-    instructions.style.left = '0';
-    instructions.style.whiteSpace = 'nowrap';
-    
-    // Create container
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.top = '50%';
-    container.style.left = '50%';
-    container.style.transform = 'translate(-50%, -50%)';
-    container.style.zIndex = '9999';
-    container.style.backgroundColor = 'white';
-    container.style.padding = '20px';
-    container.style.borderRadius = '10px';
-    container.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
-    container.style.border = '1px solid #ccc';
-    container.style.minWidth = '320px';
-    
-    container.appendChild(instructions);
-    container.appendChild(tempInput);
-    container.appendChild(closeButton);
-    document.body.appendChild(container);
-    
-    // Focus and select the text
-    tempInput.focus();
-    tempInput.select();
-    
-    // Handle close button
-    const removeElements = () => {
-      if (document.body.contains(container)) {
-        document.body.removeChild(container);
-      }
-    };
-    
-    closeButton.onclick = removeElements;
-    
-    // Auto-remove after 15 seconds
-    setTimeout(removeElements, 15000);
-    
-    console.log('✅ Showed manual copy interface');
-    return true;
-  } catch (error) {
-    console.error('All clipboard methods failed:', error);
-    // Last resort - just show in alert
-    alert(`Here's your shareable link:\n\n${text}\n\nPlease copy it manually.`);
+    console.error('Failed to copy to clipboard:', error);
     return false;
-  }
-};
-
-/**
- * Add a new friend connection
- */
-export const addFriendConnection = (userId: string, newFriend: any) => {
-  try {
-    // Get existing friends
-    const existingFriends = getUserFriends(userId);
-    
-    // Add new friend
-    const updatedFriends = [...existingFriends, newFriend];
-    
-    // Save updated friends list
-    saveUserFriends(userId, updatedFriends);
-    
-    console.log('✅ Added new friend:', newFriend.name);
-    return true;
-  } catch (error) {
-    console.error('Error adding friend connection:', error);
-    return false;
-  }
-};
-
-/**
- * Load friend's profile data from Supabase
- */
-export const loadFriendProfile = async (friendId: string) => {
-  try {
-    // This would connect to Supabase to get the friend's profile
-    // For now, we'll simulate this with localStorage
-    const friendProfile = localStorage.getItem(`bridger_profile_${friendId}`);
-    
-    if (friendProfile) {
-      const profileData = JSON.parse(friendProfile);
-      
-      // Filter out private fields (is_private = true)
-      const publicAboutMe = profileData.aboutMe?.filter((item: any) => !item.is_private) || [];
-      const publicFavorites = profileData.favorites?.filter((item: any) => !item.is_private) || [];
-      const publicHobbies = profileData.hobbies || [];
-      
-      return {
-        aboutMe: publicAboutMe,
-        favorites: publicFavorites,
-        hobbies: publicHobbies,
-        name: profileData.name || 'Friend'
-      };
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error loading friend profile:', error);
-    return null;
-  }
-};
-
-/**
- * Handle QR code scan or link click
- */
-export const handleFriendConnection = async (userId: string, connectionData: any) => {
-  try {
-    // Parse connection data from QR code or link
-    const { friendId, friendName, connectionCode } = connectionData;
-    
-    // Verify connection code (would validate with Supabase)
-    const isValidConnection = true; // This would check with Supabase
-    
-    if (isValidConnection) {
-      // Load friend's public profile data
-      const friendProfile = await loadFriendProfile(friendId);
-      
-      if (friendProfile) {
-        // Add friend to user's friends list
-        const newFriend = {
-          id: friendId,
-          firstName: friendName.split(' ')[0] || friendName,
-          lastName: friendName.split(' ').slice(1).join(' ') || '',
-          name: friendName,
-          categories: friendProfile.hobbies || [],
-          profileData: friendProfile
-        };
-        
-        const success = addFriendConnection(userId, newFriend);
-        
-        if (success) {
-          console.log('✅ Friend connection established:', friendName);
-          return { success: true, friend: newFriend };
-        }
-      }
-    }
-    
-    return { success: false, error: 'Invalid connection' };
-  } catch (error) {
-    console.error('Error handling friend connection:', error);
-    return { success: false, error: 'Connection failed' };
   }
 }; 

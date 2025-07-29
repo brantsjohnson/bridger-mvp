@@ -1,21 +1,9 @@
 {
-  "version": 2,
-  "buildCommand": "npm install && cd apps && npm install && npm run build",
+  "buildCommand": "npm run build",
   "outputDirectory": "apps/dist",
-  "installCommand": "npm install",
+  "installCommand": "npm install && cd apps && npm install",
+  "framework": "vite",
   "rewrites": [
-    {
-      "source": "/auth",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/core",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/quiz",
-      "destination": "/index.html"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

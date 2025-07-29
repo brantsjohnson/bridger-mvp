@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import QRCodeDisplay from '../components/QRCodeDisplay';
 import CameraScanner from '../components/CameraScanner';
-import { generateQRCodeData, createShareableLink, copyToClipboard, handleFriendConnection } from '../lib/friendConnections';
+import { generateQRCodeData, createShareableLink, copyToClipboard } from '../lib/friendConnections';
 import { supabase } from '../integrations/supabase/client';
 const Add = () => {
   const navigate = useNavigate();
@@ -13,55 +13,32 @@ const Add = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [copySuccess, setCopySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
   
-  // Get current user info and check quiz status
+  // Get current user info (using Fox Red for testing)
   useEffect(() => {
     const getCurrentUser = async () => {
       try {
-        // Check for user data
-        const storedUserData = localStorage.getItem('bridger_user_data');
-        if (storedUserData) {
-          const user = JSON.parse(storedUserData);
-          setUserData(user);
-          
-          // Check if user has taken the quiz by looking for quiz completion data
-          const userProfile = localStorage.getItem(`bridger_profile_${user.id}`);
-          const hasQuizData = userProfile && JSON.parse(userProfile).quizCompletedAt;
-          
-          if (hasQuizData) {
-            setHasTakenQuiz(true);
-          } else {
-            setHasTakenQuiz(false);
-          }
-          
-          setUserId(user.id);
-          setUserName(user.email || user.name || 'User');
-        } else {
-          // Demo mode - use hardcoded values
-          const demoUserId = "fox_red_user_123";
-          const userName = "Fox Red";
-          
-          setUserId(demoUserId);
-          setUserName(userName);
-          setHasTakenQuiz(true); // Demo mode assumes quiz taken
-        }
+        // For testing, use Fox Red as the current user
+        // Since we don't have a users table set up yet, use hardcoded values
+        const currentUserId = "fox_red_user_123";
+        const userName = "Fox Red";
+        
+        setUserId(currentUserId);
+        setUserName(userName);
         
         // Generate QR code and shareable link
-        const qrData = generateQRCodeData(userId || "fox_red_user_123", userName);
-        const link = createShareableLink(userId || "fox_red_user_123", userName);
+        const qrData = generateQRCodeData(currentUserId, userName);
+        const link = createShareableLink(currentUserId, userName);
         
         setQrCodeValue(qrData);
         setShareableLink(link);
         
-        console.log('User quiz status:', hasTakenQuiz);
+        console.log('Using hardcoded Fox Red user for testing');
       } catch (error) {
         console.error('Error setting up user:', error);
         // Fallback to hardcoded values
         setUserId("fox_red_user_123");
         setUserName("Fox Red");
-        setHasTakenQuiz(true);
         const qrData = generateQRCodeData("fox_red_user_123", "Fox Red");
         const link = createShareableLink("fox_red_user_123", "Fox Red");
         setQrCodeValue(qrData);
@@ -76,26 +53,13 @@ const Add = () => {
 
   const handleBack = () => {
     navigate('/');
-    // Update parent window URL
-    window.parent.postMessage({ type: 'UPDATE_URL', url: '/core' }, '*');
   };
 
   const handleShareLink = async () => {
-    try {
-      const success = await copyToClipboard(shareableLink);
-      if (success) {
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } else {
-        // If clipboard fails, show the link in a more visible way
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 3000);
-      }
-    } catch (error) {
-      console.error('Error sharing link:', error);
-      // Still show success to user since we have fallback
+    const success = await copyToClipboard(shareableLink);
+    if (success) {
       setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
+      setTimeout(() => setCopySuccess(false), 2000);
     }
   };
 
@@ -183,24 +147,8 @@ const Add = () => {
         </button>
       </div>
 
-      {/* Survey Prompt for New Users */}
-      {!hasTakenQuiz && userData && (
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="popup-window max-w-md">
-            <div className="window-content text-center p-6">
-              <div className="text-2xl mb-4">📝</div>
-              <h3 className="pixel-font font-bold text-lg mb-2">Add Friends After Taking the Quiz</h3>
-              <p className="pixel-font text-sm mb-4 text-gray-600">
-                Complete the personality quiz to unlock friend connections!
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Main content area with two square windows */}
-      {hasTakenQuiz && (
-        <div className="flex-1 flex flex-col items-center justify-evenly px-4 py-2">
+      <div className="flex-1 flex flex-col items-center justify-evenly px-4 py-2">
         {/* First window */}
         <div className="shadow-2xl flex flex-col" style={{ border: '4px outset #c0c0c0' }}>
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 flex justify-between items-center border-b-2 border-gray-800">
@@ -247,7 +195,6 @@ const Add = () => {
           {copySuccess ? 'Link Copied!' : 'Share a link'}
         </button>
       </div>
-      )}
     </div>
   );
 };

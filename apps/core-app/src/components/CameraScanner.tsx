@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Camera } from 'lucide-react';
-import { handleFriendConnection } from '../lib/friendConnections';
 
 const CameraScanner = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [scanning, setScanning] = useState(false);
-  const [scanResult, setScanResult] = useState<string | null>(null);
 
   const startCamera = useCallback(async () => {
     console.log('=== STARTING QR SCANNER CAMERA ===');
@@ -94,10 +90,6 @@ const CameraScanner = () => {
         try {
           await videoRef.current.play();
           console.log('Video play successful');
-          
-          // Start QR code scanning
-          setScanning(true);
-          startQRScanning();
         } catch (playError) {
           console.error('Video play failed:', playError);
         }
@@ -130,80 +122,6 @@ const CameraScanner = () => {
     }
   }, []);
 
-  const startQRScanning = useCallback(() => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    const scanFrame = () => {
-      if (!videoRef.current || !canvasRef.current || !scanning) return;
-      
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      if (!context) return;
-      
-      // Set canvas size to match video
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      
-      // Draw video frame to canvas
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // Get image data for QR code detection
-      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-      
-      // Simple QR code detection (this would use a proper QR library in production)
-      // For now, we'll simulate QR detection
-      const qrData = detectQRCode(imageData);
-      
-      if (qrData) {
-        console.log('QR Code detected:', qrData);
-        setScanResult(qrData);
-        setScanning(false);
-        
-        // Handle the QR code data
-        handleQRCodeData(qrData);
-      } else {
-        // Continue scanning
-        requestAnimationFrame(scanFrame);
-      }
-    };
-    
-    scanFrame();
-  }, [scanning]);
-  
-  const detectQRCode = (imageData: ImageData): string | null => {
-    // This is a placeholder - in production you'd use a QR code library
-    // For now, we'll simulate QR detection
-    return null;
-  };
-  
-  const handleQRCodeData = async (qrData: string) => {
-    try {
-      // Parse QR code data
-      const connectionData = JSON.parse(qrData);
-      
-      // Get current user
-      const storedUserData = localStorage.getItem('bridger_user_data');
-      if (!storedUserData) {
-        console.error('No user data found');
-        return;
-      }
-      
-      const user = JSON.parse(storedUserData);
-      
-      // Handle the friend connection
-      const result = await handleFriendConnection(user.id, connectionData);
-      
-      if (result.success) {
-        console.log('✅ Friend connection successful:', result.friend);
-        // You could show a success message or navigate to friends list
-      } else {
-        console.error('❌ Friend connection failed:', result.error);
-      }
-    } catch (error) {
-      console.error('Error handling QR code data:', error);
-    }
-  };
-
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
@@ -214,7 +132,6 @@ const CameraScanner = () => {
     }
     setIsStreaming(false);
     setLoading(false);
-    setScanning(false);
   }, []);
 
   useEffect(() => {
@@ -240,33 +157,19 @@ const CameraScanner = () => {
     <div className="relative w-full h-full">
       <div className="w-full h-full border-2 border-gray-600 overflow-hidden bg-black relative" style={{ borderStyle: 'inset' }}>
         {isStreaming ? (
-          <>
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-              style={{
-                backgroundColor: '#000',
-                display: 'block',
-                width: '100%',
-                height: '100%'
-              }}
-            />
-            <canvas
-              ref={canvasRef}
-              className="absolute top-0 left-0 w-full h-full pointer-events-none"
-              style={{ display: 'none' }}
-            />
-            {scanning && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="border-2 border-blue-500 w-48 h-48 rounded-lg">
-                  <div className="text-white text-center text-sm mt-2">Scanning QR Code...</div>
-                </div>
-              </div>
-            )}
-          </>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+            style={{
+              backgroundColor: '#000',
+              display: 'block',
+              width: '100%',
+              height: '100%'
+            }}
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-white bg-black">
             <Camera className="w-8 h-8 mb-2" />

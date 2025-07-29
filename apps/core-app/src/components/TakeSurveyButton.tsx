@@ -86,13 +86,15 @@ const TakeSurveyButton: React.FC<{ onClick?: () => void }> = ({ onClick }) => {
               <div className="p-4 bg-gray-200">
                 <div className="text-black font-bold mb-3">You already took the survey</div>
                 <div className="mb-3">
-                  <div className="text-center">
-                    <img 
-                      src="https://i.imgur.com/8iJapYK.gif" 
-                      alt="Best GIF ever made"
-                      className="mx-auto max-w-full h-auto"
-                    />
-                  </div>
+                  <blockquote 
+                    className="imgur-embed-pub" 
+                    lang="en" 
+                    data-id="8iJapYK"
+                    dangerouslySetInnerHTML={{
+                      __html: '<a href="//imgur.com/8iJapYK">Best GIF ever made</a>'
+                    }}
+                  />
+                  <script async src="//s.imgur.com/min/embed.js" charSet="utf-8"></script>
                 </div>
                 
                 {/* OK Button */}

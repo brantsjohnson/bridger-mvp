@@ -1,7 +1,7 @@
-import { AuthContainer } from '@/components/AuthContainer';
+import AuthContainer from "../components/AuthContainer";
 
 const Index = () => {
   return <AuthContainer />;
 };
 
-export default Index;
+export default Index; 

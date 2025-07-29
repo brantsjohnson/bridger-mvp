@@ -1,19 +1,12 @@
-import { User, Edit, Save, X, Eye, EyeOff } from "lucide-react";
+import { User, Camera, Edit, Save, X, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getCategorizedHobbies, getHobbyEmoji, getAllHobbies } from "@/lib/hobbyMappings";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const friendId = searchParams.get('friend');
-  
-  // User data state
-  const [userData, setUserData] = useState<any>(null);
-  const [isNewUser, setIsNewUser] = useState(false);
-  
-  // Load friend data when viewing friend profiles
-  const [currentProfile, setCurrentProfile] = useState<any>(null);
   
   // Edit state
   const [isEditing, setIsEditing] = useState(false);
@@ -26,131 +19,70 @@ const Profile = () => {
   const [privacySettings, setPrivacySettings] = useState<{ [key: string]: boolean }>({});
   const [showExitModal, setShowExitModal] = useState(false);
 
-  // Load user data
-  useEffect(() => {
-    const storedUserData = localStorage.getItem('bridger_user_data');
-    console.log('Profile: Checking for user data:', storedUserData);
-    
-    if (storedUserData) {
-      const user = JSON.parse(storedUserData);
-      setUserData(user);
-      console.log('Profile: User data loaded:', user);
-      
-      if (friendId && currentProfile) {
-        // Viewing a friend's profile - use friend data
-        console.log('Profile: Viewing friend profile');
-        setAboutMeData(getFriendAboutMeData());
-        setFavoritesData(getFriendFavoritesData());
-        setHobbies(getFriendHobbies());
-        setIsNewUser(false);
-      } else if (!friendId) {
-        // Viewing own profile
-        console.log('Profile: Viewing own profile');
-        const userProfile = localStorage.getItem(`bridger_profile_${user.id}`);
-        console.log('Profile: User profile data:', userProfile);
-        
-        if (userProfile) {
-          setIsNewUser(false);
-          // Load quiz data for profile
-          try {
-            const profileData = JSON.parse(userProfile);
-            // Set the profile data from quiz results
-            setAboutMeData(profileData.aboutMe || []);
-            setFavoritesData(profileData.favorites || []);
-            setHobbies(profileData.hobbies || []);
-            setPrivacySettings(profileData.privacySettings || {});
-            console.log('Profile: Quiz data loaded successfully');
-          } catch (error) {
-            console.error('Error loading profile data:', error);
-            setIsNewUser(true);
-          }
-        } else {
-          console.log('Profile: No quiz data found - showing null state');
-          setIsNewUser(true);
-        }
-      }
-    } else {
-      console.log('Profile: No user data found - showing null state');
-      setIsNewUser(true);
-    }
-    
-    // Debug logging
-    console.log('Profile state:', {
-      isNewUser,
-      friendId,
-      hasUserData: !!storedUserData,
-      hasProfileData: !!localStorage.getItem(`bridger_profile_${userData?.id}`)
-    });
-  }, [friendId, currentProfile]);
+  // Friend data
+  const friendsData = {
+    1: { name: "Alex", categories: ["Social", "Tech", "Gaming"] },
+    2: { name: "Jordan", categories: ["Music", "Art", "Vibes"] },
+    3: { name: "Casey", categories: ["Fitness", "Nature", "Chill"] },
+    4: { name: "Riley", categories: ["Books", "Coffee", "Deep"] },
+    5: { name: "Sam", categories: ["Travel", "Food", "Adventure"] },
+    6: { name: "Taylor", categories: ["Movies", "Gaming", "Fun"] },
+  };
 
-  useEffect(() => {
-    if (friendId) {
-      // Load friend data from localStorage
-      const storedUserData = localStorage.getItem('bridger_user_data');
-      if (storedUserData) {
-        const user = JSON.parse(storedUserData);
-        const userFriends = localStorage.getItem(`bridger_friends_${user.id}`);
-        
-        if (userFriends) {
-          const friends = JSON.parse(userFriends);
-          const friend = friends.find((f: any) => f.id === parseInt(friendId));
-          setCurrentProfile(friend);
-        }
-      }
-    }
-  }, [friendId]);
-  
+  const currentProfile = friendId ? friendsData[parseInt(friendId)] : null;
   const isViewingFriend = !!friendId && currentProfile;
 
-  // State for profile data
-  const [aboutMeData, setAboutMeData] = useState<any[]>([]);
-  const [favoritesData, setFavoritesData] = useState<any[]>([]);
-  const [hobbies, setHobbies] = useState<string[]>([]);
+  const aboutMeData = isViewingFriend ? [
+    { label: "Interests", value: currentProfile.categories.join(", ") },
+    { label: "Status", value: "Friend" },
+    { label: "Connection", value: "Mutual friend" },
+  ] : [
+    { label: "Places Lived", value: "Washington D.C." },
+    { label: "Birthday", value: "October 12, 1998" },
+    { label: "Sexuality", value: "Straight" },
+    { label: "Pronouns", value: "He/Him" },
+    { label: "Political Party", value: "Not political" },
+    { label: "Nickname", value: "Brantaclaus, Branty" },
+    { label: "Family", value: "Mom - Tara Goodrich\nStepdad - Greg Goodrich\nSisters - Jade & Jessica" },
+    { label: "High school", value: "Uintah" },
+    { label: "College", value: "UVU" },
+    { label: "Degree", value: "Strategy" },
+    { label: "Zodiac Sign", value: "Libra" },
+    { label: "Job Title", value: "Manager at Taco Bell" },
+  ];
 
-  // Default data for friends (when viewing friend profiles)
-  const getFriendAboutMeData = () => {
-    if (!currentProfile) return [];
-    
-    // Use friend's profile data if available
-    if (currentProfile.profileData?.aboutMe) {
-      return currentProfile.profileData.aboutMe;
-    }
-    
-    // Fallback to basic info
-    return [
-      { label: "Interests", value: currentProfile.categories?.join(", ") || "No interests listed" },
-      { label: "Status", value: "Friend" },
-      { label: "Connection", value: "Connected via Bridger" },
-    ];
-  };
+  const favoritesData = isViewingFriend ? [
+    { label: "Favorite Activity", value: currentProfile.categories[0] },
+    { label: "Connection Since", value: "2024" },
+    { label: "Mutual Friends", value: "5" },
+  ] : [
+    { label: "Snack", value: "Albanese gummy bears" },
+    { label: "Candy Bar", value: "Reeses" },
+    { label: "Movie", value: "Tick Tick Boom" },
+    { label: "Color", value: "Charcoal" },
+    { label: "Book", value: "Becoming Better Grownups" },
+    { label: "Music Artist", value: "Taylor Swift" },
+    { label: "Band", value: "Valley" },
+    { label: "Food", value: "Thai" },
+    { label: "TV Show", value: "Parks and Rec" },
+    { label: "Sports Team", value: "Chiefs" },
+    { label: "Animal", value: "Red Panda" },
+    { label: "Restaurant", value: "Cafe Rio" },
+    { label: "Video Game", value: "Libra" },
+    { label: "Smell", value: "Lavender" },
+    { label: "Season", value: "Winter" },
+    { label: "Sport", value: "Badminton" },
+    { label: "Holiday", value: "New Years Eve" },
+    { label: "Number", value: "11" },
+    { label: "Drink", value: "Dr. Pepper" },
+    { label: "Podcast", value: "NPR Politics" },
+    { label: "Album", value: "Reputation" },
+    { label: "Dessert", value: "Brownies" },
+    { label: "Board Game", value: "Secret Hitler" },
+    { label: "Vacation", value: "London" },
+  ];
 
-  const getFriendFavoritesData = () => {
-    if (!currentProfile) return [];
-    
-    // Use friend's profile data if available
-    if (currentProfile.profileData?.favorites) {
-      return currentProfile.profileData.favorites;
-    }
-    
-    // Fallback to basic info
-    return [
-      { label: "Favorite Activity", value: currentProfile.categories?.[0] || "Not specified" },
-      { label: "Connection Since", value: "Recently" },
-      { label: "Shared Interests", value: currentProfile.categories?.length || 0 },
-    ];
-  };
-
-  const getFriendHobbies = () => {
-    if (!currentProfile) return [];
-    
-    // Use friend's profile data if available
-    if (currentProfile.profileData?.hobbies) {
-      return currentProfile.profileData.hobbies;
-    }
-    
-    // Fallback to categories
-    return currentProfile.categories || [];
-  };
+  const hobbies = isViewingFriend ? currentProfile.categories : ["Photography", "Cooking", "Reading", "Hiking", "Gaming"];
   
   // Get categorized hobbies for profile page display
   const categorizedHobbies = !isViewingFriend ? getCategorizedHobbies(hobbies) : null;
@@ -196,12 +128,8 @@ const Profile = () => {
     
     if (isViewingFriend) {
       navigate('/homies');
-      // Update parent window URL
-      window.parent.postMessage({ type: 'UPDATE_URL', url: '/core/homies' }, '*');
     } else {
       navigate('/');
-      // Update parent window URL
-      window.parent.postMessage({ type: 'UPDATE_URL', url: '/core' }, '*');
     }
   };
 
@@ -233,7 +161,7 @@ const Profile = () => {
       {/* Windows-style title bar */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-2 flex justify-between items-center border-b-2 border-gray-800">
         <div className="font-bold text-sm pixel-font text-white drop-shadow-lg">
-          {isViewingFriend ? currentProfile?.name : (userData?.name || userData?.email || "Profile")}
+          {isViewingFriend ? currentProfile.name : "Brant Johnson"}
         </div>
         <button 
           onClick={() => {
@@ -277,131 +205,117 @@ const Profile = () => {
           {/* Profile Picture */}
           <div className="relative w-28 h-28 bg-yellow-400 border-2 border-gray-600 flex items-center justify-center mx-auto">
             <User className="w-12 h-12 text-black" />
-
+            {/* Camera icon for editing - only show for own profile */}
+            {!isViewingFriend && (
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gray-300 border border-gray-600 rounded-full flex items-center justify-center hover:bg-gray-400 cursor-pointer">
+                <Camera className="w-4 h-4 text-black" />
+              </div>
+            )}
           </div>
 
-          {/* New User Null State */}
-          {isNewUser && !isViewingFriend && (
-            <div className="popup-window">
-              <div className="window-content text-center p-6">
-                <div className="text-2xl mb-4">📝</div>
-                <h3 className="pixel-font font-bold text-lg mb-2">Take the quiz</h3>
-                <p className="pixel-font text-sm mb-4 text-gray-600">
-                  Complete your personality quiz to discover your interests and build your profile!
-                </p>
-
-              </div>
+          {/* About Me Section */}
+          <div className="popup-window">
+            <div className="window-titlebar">
+              <span>About Me</span>
+              {!isViewingFriend && !isEditing && (
+                <button onClick={handleEdit} className="ml-auto">
+                  <Edit className="w-4 h-4 text-white hover:text-gray-300" />
+                </button>
+              )}
             </div>
-          )}
-
-          {/* About Me Section - Only show if user has taken quiz or viewing friend */}
-          {(!isNewUser || isViewingFriend) && (
-            <div className="popup-window">
-              <div className="window-titlebar">
-                <span>About Me</span>
-                {!isViewingFriend && !isEditing && (
-                  <button onClick={handleEdit} className="ml-auto">
-                    <Edit className="w-4 h-4 text-white hover:text-gray-300" />
-                  </button>
-                )}
-              </div>
-              <div className="window-content">
-                <div className="space-y-3">
-                  {aboutMeData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        {isEditing && (
-                          <button
-                            onClick={() => togglePrivacy(`aboutMe_${item.label}`)}
-                            className="w-4 h-4 transition-colors"
-                          >
-                            {privacySettings[`aboutMe_${item.label}`] ? (
-                              <EyeOff className="w-4 h-4 text-red-500 hover:text-red-600" />
-                            ) : (
-                              <Eye className="w-4 h-4 text-gray-600 hover:text-gray-800" />
-                            )}
-                          </button>
-                        )}
-                        <span className="pixel-font text-sm font-bold min-w-[100px]">{item.label}:</span>
-                      </div>
-                      {isEditing ? (
-                        <textarea
-                          value={editedAboutMe[item.label] || item.value}
-                          onChange={(e) => setEditedAboutMe({...editedAboutMe, [item.label]: e.target.value})}
-                          className="pixel-font text-sm text-right max-w-[60%] bg-white border border-gray-600 p-1 resize-none"
-                          rows={item.value.includes('\n') ? item.value.split('\n').length : 1}
-                        />
-                      ) : (
-                        <span className="pixel-font text-sm text-right max-w-[60%]">
-                          {item.value.split('\n').map((line, i) => (
-                            <div key={i}>{line}</div>
-                          ))}
-                        </span>
+            <div className="window-content">
+              <div className="space-y-3">
+                {aboutMeData.map((item, index) => (
+                  <div key={index} className="flex justify-between items-start">
+                    <div className="flex items-center gap-2">
+                      {isEditing && (
+                        <button
+                          onClick={() => togglePrivacy(`aboutMe_${item.label}`)}
+                          className="w-4 h-4 transition-colors"
+                        >
+                          {privacySettings[`aboutMe_${item.label}`] ? (
+                            <EyeOff className="w-4 h-4 text-red-500 hover:text-red-600" />
+                          ) : (
+                            <Eye className="w-4 h-4 text-gray-600 hover:text-gray-800" />
+                          )}
+                        </button>
                       )}
+                      <span className="pixel-font text-sm font-bold min-w-[100px]">{item.label}:</span>
                     </div>
-                  ))}
-                </div>
+                    {isEditing ? (
+                      <textarea
+                        value={editedAboutMe[item.label] || item.value}
+                        onChange={(e) => setEditedAboutMe({...editedAboutMe, [item.label]: e.target.value})}
+                        className="pixel-font text-sm text-right max-w-[60%] bg-white border border-gray-600 p-1 resize-none"
+                        rows={item.value.includes('\n') ? item.value.split('\n').length : 1}
+                      />
+                    ) : (
+                      <span className="pixel-font text-sm text-right max-w-[60%]">
+                        {item.value.split('\n').map((line, i) => (
+                          <div key={i}>{line}</div>
+                        ))}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* List of Favorites Section - Only show if user has taken quiz or viewing friend */}
-          {(!isNewUser || isViewingFriend) && (
-            <div className="popup-window">
-              <div className="window-titlebar">
-                <span>{isViewingFriend ? "Friend Info" : "List of Favorites"}</span>
-                {!isViewingFriend && !isEditing && (
-                  <button onClick={handleEdit} className="ml-auto">
-                    <Edit className="w-4 h-4 text-white hover:text-gray-300" />
-                  </button>
-                )}
-              </div>
-              <div className="window-content">
-                <div className="space-y-3">
-                  {favoritesData.map((item, index) => (
-                    <div key={index} className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        {isEditing && (
-                          <button
-                            onClick={() => togglePrivacy(`favorites_${item.label}`)}
-                            className="w-4 h-4 transition-colors"
-                          >
-                            {privacySettings[`favorites_${item.label}`] ? (
-                              <EyeOff className="w-4 h-4 text-red-500 hover:text-red-600" />
-                            ) : (
-                              <Eye className="w-4 h-4 text-gray-600 hover:text-gray-800" />
-                            )}
-                          </button>
-                        )}
-                        <span className="pixel-font text-sm font-bold min-w-[100px]">{item.label}:</span>
-                      </div>
-                      {isEditing ? (
-                        <input
-                          value={editedFavorites[item.label] || item.value}
-                          onChange={(e) => setEditedFavorites({...editedFavorites, [item.label]: e.target.value})}
-                          className="pixel-font text-sm text-right bg-white border border-gray-600 p-1 max-w-[60%]"
-                        />
-                      ) : (
-                        <span className="pixel-font text-sm text-right">{item.value}</span>
+          {/* List of Favorites Section */}
+          <div className="popup-window">
+            <div className="window-titlebar">
+              <span>{isViewingFriend ? "Friend Info" : "List of Favorites"}</span>
+              {!isViewingFriend && !isEditing && (
+                <button onClick={handleEdit} className="ml-auto">
+                  <Edit className="w-4 h-4 text-white hover:text-gray-300" />
+                </button>
+              )}
+            </div>
+            <div className="window-content">
+              <div className="space-y-3">
+                {favoritesData.map((item, index) => (
+                  <div key={index} className="flex justify-between items-start">
+                    <div className="flex items-center gap-2">
+                      {isEditing && (
+                        <button
+                          onClick={() => togglePrivacy(`favorites_${item.label}`)}
+                          className="w-4 h-4 transition-colors"
+                        >
+                          {privacySettings[`favorites_${item.label}`] ? (
+                            <EyeOff className="w-4 h-4 text-red-500 hover:text-red-600" />
+                          ) : (
+                            <Eye className="w-4 h-4 text-gray-600 hover:text-gray-800" />
+                          )}
+                        </button>
                       )}
+                      <span className="pixel-font text-sm font-bold min-w-[100px]">{item.label}:</span>
                     </div>
-                  ))}
-                </div>
+                    {isEditing ? (
+                      <input
+                        value={editedFavorites[item.label] || item.value}
+                        onChange={(e) => setEditedFavorites({...editedFavorites, [item.label]: e.target.value})}
+                        className="pixel-font text-sm text-right bg-white border border-gray-600 p-1 max-w-[60%]"
+                      />
+                    ) : (
+                      <span className="pixel-font text-sm text-right">{item.value}</span>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Hobbies Section - Only show if user has taken quiz or viewing friend */}
-          {(!isNewUser || isViewingFriend) && (
-            <div className="popup-window">
-              <div className="window-titlebar">
-                <span>{isViewingFriend ? "Interests" : "Cute Lil Hobbies 🤗"}</span>
-                {!isViewingFriend && !isEditing && (
-                  <button onClick={handleEdit} className="ml-auto">
-                    <Edit className="w-4 h-4 text-white hover:text-gray-300" />
-                  </button>
-                )}
-              </div>
+          {/* Hobbies Section */}
+          <div className="popup-window">
+            <div className="window-titlebar">
+              <span>{isViewingFriend ? "Interests" : "Cute Lil Hobbies 🤗"}</span>
+              {!isViewingFriend && !isEditing && (
+                <button onClick={handleEdit} className="ml-auto">
+                  <Edit className="w-4 h-4 text-white hover:text-gray-300" />
+                </button>
+              )}
+            </div>
             <div className="window-content">
               {isViewingFriend ? (
                 <div className="flex flex-wrap gap-2">
@@ -467,7 +381,6 @@ const Profile = () => {
               )}
             </div>
           </div>
-          )}
 
         </div>
       </div>

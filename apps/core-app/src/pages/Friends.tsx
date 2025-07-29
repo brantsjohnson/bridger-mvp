@@ -1,44 +1,20 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, ChevronRight, X, Search } from 'lucide-react';
 import FriendRequests from '../components/FriendRequests';
 const Friends = () => {
   const navigate = useNavigate();
+  const currentUserId = "fox_red_user_123"; // For testing
   const [searchQuery, setSearchQuery] = useState('');
-  const [userData, setUserData] = useState<any>(null);
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [friends, setFriends] = useState<any[]>([]);
   
-  // Load user-specific data
-  useEffect(() => {
-    const storedUserData = localStorage.getItem('bridger_user_data');
-    if (storedUserData) {
-      const user = JSON.parse(storedUserData);
-      setUserData(user);
-      
-      // Load user-specific friends from localStorage
-      const userFriends = localStorage.getItem(`bridger_friends_${user.id}`);
-      if (userFriends) {
-        const friendsList = JSON.parse(userFriends);
-        if (friendsList.length > 0) {
-          setFriends(friendsList);
-          setIsNewUser(false);
-        } else {
-          // User has no friends yet
-          setIsNewUser(true);
-          setFriends([]);
-        }
-      } else {
-        // New user - no friends yet
-        setIsNewUser(true);
-        setFriends([]);
-      }
-    } else {
-      // No user data - show empty state
-      setIsNewUser(true);
-      setFriends([]);
-    }
-  }, []);
+  const friends = [
+    { id: 1, firstName: "Alex", lastName: "Johnson", categories: ["Social", "Tech", "Gaming"] },
+    { id: 2, firstName: "Jordan", lastName: "Smith", categories: ["Music", "Art", "Vibes"] },
+    { id: 3, firstName: "Casey", lastName: "Brown", categories: ["Fitness", "Nature", "Chill"] },
+    { id: 4, firstName: "Riley", lastName: "Davis", categories: ["Books", "Coffee", "Deep"] },
+    { id: 5, firstName: "Sam", lastName: "Wilson", categories: ["Travel", "Food", "Adventure"] },
+    { id: 6, firstName: "Taylor", lastName: "Martinez", categories: ["Movies", "Gaming", "Fun"] },
+  ];
 
   // Filter friends based on search query
   const filteredFriends = friends.filter(friend => 
@@ -51,8 +27,6 @@ const Friends = () => {
 
   const handleBackClick = () => {
     navigate('/');
-    // Update parent window URL
-    window.parent.postMessage({ type: 'UPDATE_URL', url: '/core' }, '*');
   };
 
   return (
@@ -86,7 +60,7 @@ const Friends = () => {
       <div className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-40px)]">
         {/* Friend Requests */}
         <div className="max-w-2xl mx-auto mb-6">
-          <FriendRequests currentUserId={userData?.id || "demo_user"} />
+          <FriendRequests currentUserId={currentUserId} />
         </div>
         
         {/* Search Bar */}
@@ -110,63 +84,31 @@ const Friends = () => {
 
         {/* Friends List */}
         <div className="max-w-2xl mx-auto space-y-4">
-          {isNewUser ? (
-            // New user null state
-            <div className="popup-window">
-              <div className="window-content text-center p-6">
-                <div className="text-2xl mb-4">👥</div>
-                <h3 className="pixel-font font-bold text-lg mb-2">No Friends Yet</h3>
-                <p className="pixel-font text-sm mb-4 text-gray-600">
-                  Take the quiz above babes!
-                </p>
+          {filteredFriends.map((friend) => (
+            <div 
+              key={friend.id}
+              className="friend-widget p-4 cursor-pointer flex items-center gap-4"
+              onClick={() => handleFriendClick(friend.id)}
+            >
+              {/* Profile Icon */}
+              <div className="w-12 h-12 bg-yellow-400 border-2 border-gray-600 flex items-center justify-center">
+                <User className="w-6 h-6 text-black" />
               </div>
+              
+              {/* Friend Info - Full name */}
+              <div className="flex-1">
+                <h3 className="pixel-font font-bold text-lg">{friend.firstName} {friend.lastName}</h3>
+              </div>
+              
+              {/* Arrow Button */}
+              <button className="w-8 h-8 bg-gray-300 border-2 border-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors"
+                      style={{ border: '2px outset #e0e0e0' }}>
+                <ChevronRight className="w-4 h-4 text-black" />
+              </button>
             </div>
-          ) : filteredFriends.length > 0 ? (
-            // Existing friends
-            filteredFriends.map((friend) => (
-              <div 
-                key={friend.id}
-                className="friend-widget p-4 cursor-pointer flex items-center gap-4"
-                onClick={() => handleFriendClick(friend.id)}
-              >
-                {/* Profile Icon */}
-                <div className="w-12 h-12 bg-yellow-400 border-2 border-gray-600 flex items-center justify-center">
-                  <User className="w-6 h-6 text-black" />
-                </div>
-                
-                {/* Friend Info - Full name */}
-                <div className="flex-1">
-                  <h3 className="pixel-font font-bold text-lg">{friend.firstName} {friend.lastName}</h3>
-                </div>
-                
-                {/* Arrow Button */}
-                <button className="w-8 h-8 bg-gray-300 border-2 border-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors"
-                        style={{ border: '2px outset #e0e0e0' }}>
-                  <ChevronRight className="w-4 h-4 text-black" />
-                </button>
-              </div>
-            ))
-          ) : (
-            // Empty state for existing users
-            <div className="popup-window">
-              <div className="window-content text-center p-6">
-                <div className="text-2xl mb-4">👥</div>
-                <h3 className="pixel-font font-bold text-lg mb-2">No Friends Yet</h3>
-                <p className="pixel-font text-sm mb-4 text-gray-600">
-                  Add some friends to see them here!
-                </p>
-                <button 
-                  onClick={() => navigate('/add')}
-                  className="px-4 py-2 pixel-font bg-green-600 text-white border-2 border-outset hover:bg-green-700 transition-colors"
-                  style={{ border: '2px outset #e0e0e0' }}
-                >
-                  Add Friends
-                </button>
-              </div>
-            </div>
-          )}
+          ))}
           
-          {filteredFriends.length === 0 && searchQuery && !isNewUser && (
+          {filteredFriends.length === 0 && searchQuery && (
             <div className="text-center py-8">
               <p className="pixel-font text-gray-600">No friends found matching "{searchQuery}"</p>
             </div>

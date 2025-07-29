@@ -38,44 +38,13 @@ const Index = () => {
       try {
         const storedUserData = localStorage.getItem('bridger_user_data');
         console.log('Checking for user data in localStorage:', storedUserData);
-        
         if (storedUserData) {
           const user = JSON.parse(storedUserData);
           setUserData(user);
           console.log('✅ Loaded user data:', user);
-          
-          // Load user-specific data
-          const userFriends = localStorage.getItem(`bridger_friends_${user.id}`);
-          const userRequests = localStorage.getItem(`bridger_requests_${user.id}`);
-          
-          if (userFriends) {
-            setAllFriends(JSON.parse(userFriends));
-            console.log('✅ Loaded user friends:', JSON.parse(userFriends));
-          } else {
-            // New user - no friends yet
-            setIsNewUser(true);
-            setAllFriends([]);
-            console.log('🆕 New user detected - showing null states');
-          }
-          
-          if (userRequests) {
-            setFriendRequests(JSON.parse(userRequests));
-            setFriendRequestCount(JSON.parse(userRequests).length);
-            console.log('✅ Loaded user friend requests:', JSON.parse(userRequests));
-          } else {
-            // New user - no requests yet
-            setFriendRequests([]);
-            setFriendRequestCount(0);
-            console.log('🆕 New user - no friend requests');
-          }
-                  } else {
-            console.log('No user data found, showing null states');
-            // No user data - show null states
-            setAllFriends([]);
-            setFriendRequests([]);
-            setFriendRequestCount(0);
-            setIsNewUser(true);
-          }
+        } else {
+          console.log('No user data found, showing demo mode');
+        }
       } catch (error) {
         console.error('Error loading user data:', error);
       } finally {
@@ -86,10 +55,18 @@ const Index = () => {
     loadUserData();
   }, []);
   
-  // User-specific data - load from localStorage or use null states for new users
-  const [friendRequests, setFriendRequests] = useState<any[]>([]);
-  const [allFriends, setAllFriends] = useState<any[]>([]);
-  const [isNewUser, setIsNewUser] = useState(false);
+  // Mock data - each object represents one individual friend request
+  const [friendRequests, setFriendRequests] = useState([
+    { from: "Taylor" },
+    { from: "Sam" },
+  ]);
+  
+  const allFriends = [
+    { name: "Alex", categories: ["Social", "Tech", "Gaming"] },
+    { name: "Jordan", categories: ["Music", "Art", "Vibes"] },
+    { name: "Casey", categories: ["Fitness", "Nature", "Chill"] },
+    { name: "Riley", categories: ["Books", "Coffee", "Deep"] },
+  ];
 
   // Sort friends - pending ones go to bottom after "refresh" (closing windows)
   const friends = shouldSortPending 
@@ -101,16 +78,10 @@ const Index = () => {
     console.log(`Clicked ${iconType} icon`);
     if (iconType === 'Profile') {
       navigate('/profile');
-      // Update parent window URL
-      window.parent.postMessage({ type: 'UPDATE_URL', url: '/core/profile' }, '*');
     } else if (iconType === 'Suggestions') {
       navigate('/homies');
-      // Update parent window URL
-      window.parent.postMessage({ type: 'UPDATE_URL', url: '/core/homies' }, '*');
     } else if (iconType === 'Add') {
       navigate('/add');
-      // Update parent window URL
-      window.parent.postMessage({ type: 'UPDATE_URL', url: '/core/add' }, '*');
     }
   };
 
@@ -125,10 +96,15 @@ const Index = () => {
 
   const handleSurveyClick = () => {
     console.log("Taking new survey...");
-    // Navigate to the quiz app using the main app's routing
-    window.parent.postMessage({ type: 'NAVIGATE_TO_QUIZ' }, '*');
-    // Also update the URL
-    window.parent.postMessage({ type: 'UPDATE_URL', url: '/quiz' }, '*');
+    // Send message to parent to navigate to quiz app
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ 
+        type: 'NAVIGATE_TO_QUIZ'
+      }, '*');
+    } else {
+      // Fallback: direct navigation if not in iframe
+      window.location.href = 'http://localhost:3000/quiz';
+    }
   };
 
   const handleReviewRequests = () => {
@@ -324,58 +300,25 @@ const Index = () => {
           <h2 className="pixel-font text-center text-lg font-bold" style={{ color: 'white', textShadow: '1px 1px 1px rgba(0,0,0,0.8)' }}>
             Suggestions
           </h2>
-          
-          {isNewUser ? (
-            // New user null state
-            <div className="popup-window">
-              <div className="window-content text-center p-6">
-                <div className="text-2xl mb-4">🎯</div>
-                <h3 className="pixel-font font-bold text-lg mb-2">No Suggestions Yet</h3>
-                <p className="pixel-font text-sm mb-4 text-gray-600">
-                  Take the quiz!
-                </p>
-              </div>
-            </div>
-          ) : friends.length > 0 ? (
-            // Existing friends
-            friends.map((friend, index) => {
-              const isPending = pendingFriends.includes(friend.name);
-              return (
-                <FriendWidget
-                  key={index}
-                  name={friend.name}
-                  categories={friend.categories.map(getHobbyEmoji)}
-                  isPending={isPending}
-                  onPendingChange={(name: string, pending: boolean) => {
-                    if (pending) {
-                      setPendingFriends(prev => [...prev, name]);
-                    } else {
-                      setPendingFriends(prev => prev.filter(f => f !== name));
-                    }
-                  }}
-                  onClick={() => console.log(`View ${friend.name}`)}
-                />
-              );
-            })
-          ) : (
-            // Empty state for existing users
-            <div className="popup-window">
-              <div className="window-content text-center p-6">
-                <div className="text-2xl mb-4">👥</div>
-                <h3 className="pixel-font font-bold text-lg mb-2">No Friends Yet</h3>
-                <p className="pixel-font text-sm mb-4 text-gray-600">
-                  Add some friends to see suggestions here!
-                </p>
-                <button 
-                  onClick={() => navigate('/add')}
-                  className="px-4 py-2 pixel-font bg-green-600 text-white border-2 border-outset hover:bg-green-700 transition-colors"
-                  style={{ border: '2px outset #e0e0e0' }}
-                >
-                  Add Friends
-                </button>
-              </div>
-            </div>
-          )}
+          {friends.map((friend, index) => {
+            const isPending = pendingFriends.includes(friend.name);
+            return (
+              <FriendWidget
+                key={index}
+                name={friend.name}
+                categories={friend.categories.map(getHobbyEmoji)}
+                isPending={isPending}
+                onPendingChange={(name: string, pending: boolean) => {
+                  if (pending) {
+                    setPendingFriends(prev => [...prev, name]);
+                  } else {
+                    setPendingFriends(prev => prev.filter(f => f !== name));
+                  }
+                }}
+                onClick={() => console.log(`View ${friend.name}`)}
+              />
+            );
+          })}
         </div>
 
         {/* Windows */}

@@ -1,138 +1,118 @@
-# Bridger MVP
+# Bridger MVP - Monorepo
 
-A multi-app platform for connecting people through personality quizzes and social features.
+This monorepo contains three main applications that work together to create the Bridger MVP experience:
 
-## 🚀 Features
+## 📁 Structure
 
-- **Authentication App** (`/auth`) - User signup/login with Supabase
-- **Core App** (`/core`) - Main social platform with friend connections
-- **Quiz App** (`/quiz`) - Personality assessment with AI integration
-- **PWA Support** - Installable on mobile devices
-- **Multi-user Support** - Multiple users can sign up and use the platform
-
-## 🏗️ Architecture
-
-This is a monorepo containing three main applications:
-
-- `apps/auth-app/` - Authentication service
-- `apps/core-app/` - Main social platform
-- `apps/quiz-app/` - Personality quiz with AI
-- `apps/` - Main router app (port 3000)
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React + TypeScript + Vite
-- **UI**: Tailwind CSS + shadcn/ui
-- **Backend**: Supabase (PostgreSQL + Auth)
-- **Deployment**: Vercel
-- **PWA**: Service Worker + Manifest
-
-## 🚀 Quick Start
-
-### Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start all apps
-npm run dev
-
-# Or start individual apps
-npm run dev:main    # Main router (port 3000)
-npm run dev:auth    # Auth app (port 8081)
-npm run dev:core    # Core app (port 8080)
-npm run dev:quiz    # Quiz app (port 8084)
+```
+bridger-mvp/
+├── apps/
+│   ├── quiz-app/          # Loveable quiz design (Vite/React)
+│   ├── core-app/          # Main application (Vite/React) - TODO
+│   └── auth-app/          # Authentication (Vite/React) - TODO
+├── shared/
+│   ├── lib/              # Shared utilities (Supabase client, etc.)
+│   ├── types/            # Shared TypeScript types
+│   └── constants/        # Shared constants and configuration
+└── package.json          # Root package.json with workspaces
 ```
 
-### Production Build
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+```bash
+# Install root dependencies
+npm install
+
+# Install all app dependencies
+npm run install:all
+```
+
+### Development
+```bash
+# Run all apps simultaneously
+npm run dev
+
+# Run individual apps
+npm run dev:quiz    # Quiz app only
+npm run dev:core    # Core app only (when created)
+npm run dev:auth    # Auth app only (when created)
+```
+
+## 📱 Apps
+
+### Quiz App (`apps/quiz-app/`)
+- **Purpose**: Loveable quiz design for personality assessment
+- **Tech**: Vite + React + TypeScript
+- **Port**: 5173 (default Vite port)
+- **Status**: ✅ Complete
+
+### Core App (`apps/core-app/`)
+- **Purpose**: Main application with dashboard, user management, etc.
+- **Tech**: Vite + React + TypeScript
+- **Port**: TBD
+- **Status**: 🚧 TODO
+
+### Auth App (`apps/auth-app/`)
+- **Purpose**: Sign in/sign up functionality
+- **Tech**: Vite + React + TypeScript
+- **Port**: TBD
+- **Status**: 🚧 TODO
+
+## 🔗 Shared Resources
+
+### Shared Library (`shared/lib/`)
+- `supabaseClient.ts` - Shared Supabase client for all apps
+- User session management functions
+
+### Shared Types (`shared/types/`)
+- `user.ts` - User and authentication type definitions
+
+### Shared Constants (`shared/constants/`)
+- `app.ts` - App routing, storage keys, and API endpoints
+
+## 🔐 Authentication & Data Flow
+
+All apps share the same Supabase client and user session:
+- User signs in through auth-app
+- Session is shared across all apps
+- Quiz results are saved to user's profile
+- Core app can access user data and quiz results
+
+## 🛠️ Adding New Apps
+
+When you add new apps:
+
+1. Create the app in `apps/[app-name]/`
+2. Add it to the workspace scripts in root `package.json`
+3. Import shared utilities from `shared/` as needed
+4. Use the shared Supabase client for data access
+
+## 📦 Build & Deploy
 
 ```bash
 # Build all apps
 npm run build
 
 # Build individual apps
-cd apps/auth-app && npm run build
-cd apps/core-app && npm run build
-cd apps/quiz-app && npm run build
+npm run build:quiz
+npm run build:core
+npm run build:auth
 ```
 
-## 📱 Mobile Access
+## 🔧 Environment Variables
 
-The app is designed as a Progressive Web App (PWA) that can be installed on mobile devices:
+Each app can have its own `.env` file, but shared variables should be consistent:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-1. Visit the deployed URL on your phone
-2. Tap "Add to Home Screen" when prompted
-3. Use the app like a native mobile app
+## 📝 Notes
 
-## 🌐 Deployment
-
-### Vercel Deployment
-
-1. Connect your GitHub repository to Vercel
-2. Configure build settings:
-   - **Framework Preset**: Vite
-   - **Root Directory**: `apps`
-   - **Build Command**: `npm run build`
-   - **Output Directory**: `dist`
-3. Add environment variables:
-   - `VITE_SUPABASE_URL`
-   - `VITE_SUPABASE_ANON_KEY`
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-## 📁 Project Structure
-
-```
-bridger-mvp/
-├── apps/
-│   ├── auth-app/          # Authentication service
-│   ├── core-app/          # Main social platform
-│   ├── quiz-app/          # Personality quiz
-│   └── src/               # Main router app
-├── shared/                # Shared components and utilities
-├── vercel.json           # Vercel deployment config
-└── package.json          # Root package.json
-```
-
-## 🔧 Development
-
-### Adding New Features
-
-1. Create feature branch: `git checkout -b feature/new-feature`
-2. Make changes in appropriate app directory
-3. Test locally: `npm run dev`
-4. Commit changes: `git commit -m "Add new feature"`
-5. Push to GitHub: `git push origin feature/new-feature`
-
-### Port Configuration
-
-The apps use fixed ports to ensure consistent routing:
-
-- **Main App**: `localhost:3000`
-- **Auth App**: `localhost:8081`
-- **Core App**: `localhost:8080`
-- **Quiz App**: `localhost:8084`
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📞 Support
-
-For support or questions, please open an issue on GitHub.
+- Each app maintains its own unique styling and components
+- Shared utilities are minimal to avoid conflicts
+- User session is managed centrally through shared Supabase client
+- Apps can communicate through URL parameters or shared storage 
